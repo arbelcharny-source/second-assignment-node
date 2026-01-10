@@ -41,7 +41,7 @@ Content-Type: application/json
     "title": "My First Post",
     "content": "This is the content of the post.",
     "ownerId": "{{createdUserId}}", 
-    "imageUrl": "http://example.com/image.png"
+    "imageAttachmentUrl": "http://example.com/image.png"
 }
 
 ### Get All Posts

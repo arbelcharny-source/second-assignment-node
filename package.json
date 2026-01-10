@@ -2,9 +2,11 @@
   "name": "first-assignment-node",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "node src/index.js"
-  },
+"scripts": {
+  "dev": "tsx watch src/index.ts",
+  "build": "tsc",
+  "start": "node dist/index.js" 
+},
   "author": "Nitzan & Arbel",
   "license": "ISC",
   "description": "",
@@ -16,6 +18,11 @@
     "mongoose": "^8.21.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@types/express": "^5.0.6",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.0.5",
+    "nodemon": "^3.1.11",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
