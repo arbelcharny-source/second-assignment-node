@@ -61,7 +61,7 @@ export const getCommentByID = async (req: Request, res: Response): Promise<void>
     const id = req.params._id as string;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(404).json({ message: 'Invalid Comment ID format' });
+        res.status(400).send("Invalid ID format");
         return;
     }
 
@@ -104,10 +104,10 @@ export const updateComment = async (req: Request, res: Response): Promise<void> 
         const id = req.params._id as string;
         const { content } = req.body;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            res.status(404).json({ message: 'Invalid Comment ID format' });
-            return;
-        }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400).send("Invalid ID format");
+        return;
+    }
 
         const updatedComment = await Comment.findByIdAndUpdate(
             id,
@@ -135,7 +135,7 @@ export const deleteComment = async (req: Request, res: Response): Promise<void> 
         const id = req.params._id as string;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            res.status(404).json({ message: 'Invalid Comment ID format' });
+            res.status(400).send("Invalid ID format");
             return;
         }
 
