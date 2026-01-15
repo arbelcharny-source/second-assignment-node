@@ -24,6 +24,7 @@ beforeEach(async () => {
 
   const userRes = await request(app).post("/auth/register").send({
     username: "poster",
+    email: "poster@example.com",
     fullName: "Poster User"
   });
   userId = userRes.body.data._id;

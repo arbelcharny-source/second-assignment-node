@@ -26,7 +26,9 @@ beforeEach(async () => {
   await User.deleteMany({});
 
   const userRes = await request(app).post("/auth/register").send({
-    username: "commenter", fullName: "Commenter"
+    username: "commenter",
+    email: "commenter@example.com",
+    fullName: "Commenter"
   });
   userId = userRes.body.data._id;
 

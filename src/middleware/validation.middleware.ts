@@ -3,20 +3,26 @@ import { isValidObjectId } from '../utils/validation.js';
 import { sendValidationError } from '../utils/response.js';
 
 export const validateUserRegistration = (req: Request, res: Response, next: NextFunction): void => {
-  const { username, fullName } = req.body;
+  const { username, email, fullName } = req.body;
 
-  if (!username || !fullName) {
-    sendValidationError(res, 'Username and fullName are required');
+  if (!username || !email || !fullName) {
+    sendValidationError(res, 'Username, email, and fullName are required');
     return;
   }
 
-  if (typeof username !== 'string' || typeof fullName !== 'string') {
-    sendValidationError(res, 'Username and fullName must be strings');
+  if (typeof username !== 'string' || typeof email !== 'string' || typeof fullName !== 'string') {
+    sendValidationError(res, 'Username, email, and fullName must be strings');
     return;
   }
 
   if (username.trim().length < 3 || username.trim().length > 50) {
     sendValidationError(res, 'Username must be between 3 and 50 characters');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    sendValidationError(res, 'Invalid email format');
     return;
   }
 
@@ -33,21 +39,6 @@ export const validatePostCreation = (req: Request, res: Response, next: NextFunc
 
   if (!title || !content || !ownerId) {
     sendValidationError(res, 'Title, content, and ownerId are required');
-    return;
-  }
-
-  if (typeof title !== 'string' || typeof content !== 'string' || typeof ownerId !== 'string') {
-    sendValidationError(res, 'Title, content, and ownerId must be strings');
-    return;
-  }
-
-  if (title.trim().length < 1 || title.trim().length > 200) {
-    sendValidationError(res, 'Title must be between 1 and 200 characters');
-    return;
-  }
-
-  if (content.trim().length < 1 || content.trim().length > 10000) {
-    sendValidationError(res, 'Content must be between 1 and 10000 characters');
     return;
   }
 

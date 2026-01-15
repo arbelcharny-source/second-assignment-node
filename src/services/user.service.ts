@@ -2,14 +2,21 @@ import User, { IUser } from '../models/user.js';
 import { AppError } from '../middleware/error.middleware.js';
 
 export class UserService {
-  async createUser(username: string, fullName: string): Promise<IUser> {
-    const existingUser = await User.findOne({ username });
+  async createUser(username: string, email: string, fullName: string): Promise<IUser> {
+    const existingUser = await User.findOne({
+      $or: [{ username }, { email }]
+    });
 
     if (existingUser) {
-      throw new AppError('Username already exists', 409);
+      if (existingUser.username === username) {
+        throw new AppError('Username already exists', 409);
+      }
+      if (existingUser.email === email) {
+        throw new AppError('Email already exists', 409);
+      }
     }
 
-    const user = await User.create({ username, fullName });
+    const user = await User.create({ username, email, fullName });
     return user;
   }
 
