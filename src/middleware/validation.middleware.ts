@@ -3,15 +3,15 @@ import { isValidObjectId } from '../utils/validation.js';
 import { sendValidationError } from '../utils/response.js';
 
 export const validateUserRegistration = (req: Request, res: Response, next: NextFunction): void => {
-  const { username, email, fullName } = req.body;
+  const { username, email, fullName, password } = req.body;
 
-  if (!username || !email || !fullName) {
-    sendValidationError(res, 'Username, email, and fullName are required');
+  if (!username || !email || !fullName || !password) {
+    sendValidationError(res, 'Username, email, fullName, and password are required');
     return;
   }
 
-  if (typeof username !== 'string' || typeof email !== 'string' || typeof fullName !== 'string') {
-    sendValidationError(res, 'Username, email, and fullName must be strings');
+  if (typeof username !== 'string' || typeof email !== 'string' || typeof fullName !== 'string' || typeof password !== 'string') {
+    sendValidationError(res, 'Username, email, fullName, and password must be strings');
     return;
   }
 
@@ -28,6 +28,43 @@ export const validateUserRegistration = (req: Request, res: Response, next: Next
 
   if (fullName.trim().length < 2 || fullName.trim().length > 100) {
     sendValidationError(res, 'Full name must be between 2 and 100 characters');
+    return;
+  }
+
+  if (password.length < 6 || password.length > 100) {
+    sendValidationError(res, 'Password must be between 6 and 100 characters');
+    return;
+  }
+
+  next();
+};
+
+export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    sendValidationError(res, 'Username and password are required');
+    return;
+  }
+
+  if (typeof username !== 'string' || typeof password !== 'string') {
+    sendValidationError(res, 'Username and password must be strings');
+    return;
+  }
+
+  next();
+};
+
+export const validateRefreshToken = (req: Request, res: Response, next: NextFunction): void => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    sendValidationError(res, 'Refresh token is required');
+    return;
+  }
+
+  if (typeof refreshToken !== 'string') {
+    sendValidationError(res, 'Refresh token must be a string');
     return;
   }
 

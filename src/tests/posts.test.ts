@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -25,9 +28,10 @@ beforeEach(async () => {
   const userRes = await request(app).post("/auth/register").send({
     username: "poster",
     email: "poster@example.com",
-    fullName: "Poster User"
+    fullName: "Poster User",
+    password: "password123"
   });
-  userId = userRes.body.data._id;
+  userId = userRes.body.data.user._id;
 });
 
 describe("Posts API", () => {
