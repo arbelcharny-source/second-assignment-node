@@ -27,8 +27,9 @@ describe("Users API", () => {
       fullName: "Test User"
     });
     expect(response.statusCode).toBe(201);
-    expect(response.body.username).toBe("testuser");
-    expect(response.body.password).not.toBeDefined();
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.username).toBe("testuser");
+    expect(response.body.data.password).not.toBeDefined();
   });
 
   test("Fail to register duplicate user", async () => {
@@ -41,7 +42,8 @@ describe("Users API", () => {
       username: "testuser",
       fullName: "Another User"
     });
-    expect(response.statusCode).not.toBe(201);
+    expect(response.statusCode).toBe(409);
+    expect(response.body.success).toBe(false);
   });
 
   test("Fail to register user without required fields", async () => {
@@ -49,5 +51,6 @@ describe("Users API", () => {
       username: "missingFullName"
     });
     expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
   });
 });
