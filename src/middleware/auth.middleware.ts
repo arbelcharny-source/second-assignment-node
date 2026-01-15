@@ -10,6 +10,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
       throw new AppError('No token provided', 401);
     }
 
+    // Remove 'Bearer ' chars.
     const token = authHeader.substring(7);
 
     const payload = verifyAccessToken(token);
