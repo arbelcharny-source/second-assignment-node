@@ -1,127 +1,59 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import Post from "../models/post.js";
-import User from "../models/user.js";
+import { asyncHandler } from '../middleware/error.middleware.js';
+import { sendSuccess, sendCreated } from '../utils/response.js';
+import postService from '../services/post.service.js';
 
 interface CreatePostBody {
-    title: string;
-    content: string;
-    ownerId: string;
-    imageAttachmentUrl?: string;
+  title: string;
+  content: string;
+  ownerId: string;
+  imageAttachmentUrl?: string;
 }
 
 interface UpdatePostBody {
-    content: string;
+  content: string;
 }
 
-export const createPost = async (req: Request, res: Response): Promise<void> => {
-    const { title, content, ownerId, imageAttachmentUrl } = req.body as CreatePostBody;
+export const createPost = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { title, content, ownerId, imageAttachmentUrl } = req.body as CreatePostBody;
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(ownerId)) {
-            res.status(400).json({ message: 'Invalid User ID format' });
-            return;
-        }
+  const post = await postService.createPost(title, content, ownerId, imageAttachmentUrl);
 
-        const userExists = await User.findById(ownerId);
-        if (!userExists) {
-            res.status(404).send(`User ${ownerId} not found`);
-            return;
-        }
+  sendCreated(res, post);
+});
 
-        const post = await Post.create({
-            title,
-            content,
-            ownerId,
-            imageAttachmentUrl,
-        });
+export const getAllPosts = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const page = parseInt(req.query.page as string);
+  const limit = parseInt(req.query.limit as string);
 
-        res.status(201).send(post);
-    } catch (error) {
-        res.status(400).send((error as Error).message);
-    }
-};
+  const posts = (page && limit)
+    ? await postService.getAllPosts({ page, limit })
+    : await postService.getAllPosts();
 
-export const getAllPosts = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const posts = await Post.find({});
-        res.send(posts);
-    } catch (error) {
-        res.status(400).send((error as Error).message);
-    }
-};
+  sendSuccess(res, posts);
+});
 
-export const getPostByID = async (req: Request, res: Response): Promise<void> => {
-    const id = req.params._id as string;
+export const getPostByID = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params._id as string;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        res.status(400).json({ message: 'Invalid Post ID format' });
-        return;
-    }
+  const post = await postService.getPostById(id);
 
-    try {
-        const post = await Post.findById(id);
-        
-        if (!post) {
-            res.status(404).send(`Post ${id} not found`);
-            return;
-        }
+  sendSuccess(res, post);
+});
 
-        res.send(post);
-    } catch (error) {
-        res.status(400).send((error as Error).message);
-    }
-};
+export const getPostsBySender = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const ownerId = req.params.ownerId as string;
 
-export const getPostsBySender = async (req: Request, res: Response): Promise<void> => {
-    const ownerId = req.params.ownerId as string;
+  const posts = await postService.getPostsBySender(ownerId);
 
-    try {
-        if (!mongoose.Types.ObjectId.isValid(ownerId)) {
-            res.status(400).json({ message: 'Invalid User ID format' });
-            return;
-        }
+  sendSuccess(res, posts);
+});
 
-        const userExists = await User.findById(ownerId);
-        if (!userExists) {
-            res.status(404).send(`User ${ownerId} not found`);
-            return;
-        }
+export const updatePost = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params._id as string;
+  const { content } = req.body as UpdatePostBody;
 
-        const posts = await Post.find({ ownerId: ownerId });
-        res.send(posts);
-    } catch (error) {
-        res.status(400).send((error as Error).message);
-    }
-};
+  const updatedPost = await postService.updatePost(id, content);
 
-export const updatePost = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const id = req.params._id as string;
-        const { content } = req.body as UpdatePostBody;
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            res.status(400).json({ message: 'Invalid Post ID format' });
-            return;
-        }
-
-        const updatedPost = await Post.findByIdAndUpdate(
-            id,
-            { content },
-            {
-                new: true,
-                runValidators: true
-            }
-        );
-
-        if (!updatedPost) {
-            res.status(404).send(`Post ${id} not found`);
-            return;
-        }
-
-        res.status(200).json(updatedPost);
-
-    } catch (error) {
-        res.status(500).json({ message: (error as Error).message });
-    }
-};
+  sendSuccess(res, updatedPost);
+});
