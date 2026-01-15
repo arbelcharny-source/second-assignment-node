@@ -13,7 +13,6 @@
   "description": "",
   "type": "module",
   "dependencies": {
-    "body-parser": "^2.2.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "mongoose": "^8.21.0"
