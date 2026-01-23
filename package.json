@@ -2,9 +2,12 @@
   "name": "first-assignment-node",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "start": "node src/index.js"
-  },
+"scripts": {
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles"
+},
   "author": "Nitzan & Arbel",
   "license": "ISC",
   "description": "",
@@ -16,6 +19,17 @@
     "mongoose": "^8.21.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.0.5",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
+    "mongodb-memory-server": "^11.0.1",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
