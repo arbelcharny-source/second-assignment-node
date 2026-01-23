@@ -11,7 +11,7 @@
 
 ### Register User (Create User)
 # @name register
-POST {{baseUrl}}/auth/register
+POST {{baseUrl}}/users/register
 Content-Type: application/json
 
 {
@@ -21,7 +21,7 @@ Content-Type: application/json
 
 ### Check Existing User (Create User)
 # @name register
-POST {{baseUrl}}/auth/register
+POST {{baseUrl}}/users/register
 Content-Type: application/json
 
 {

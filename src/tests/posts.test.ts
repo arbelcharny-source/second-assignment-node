@@ -25,7 +25,7 @@ beforeEach(async () => {
   await Post.deleteMany({});
   await User.deleteMany({});
 
-  const userRes = await request(app).post("/auth/register").send({
+  const userRes = await request(app).post("/users/register").send({
     username: "poster",
     email: "poster@example.com",
     fullName: "Poster User",
