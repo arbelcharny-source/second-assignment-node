@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, getAllPosts, getPostByID, getPostsBySender, updatePost } from "../controllers/post-controller.js";
+import { createPost, getAllPosts, getPostByID, getPostsBySender, updatePost, deletePost } from "../controllers/post-controller.js";
 import { validatePostCreation, validatePostUpdate } from "../middleware/validation.middleware.js";
 import { validateObjectId } from "../utils/validation.js";
 
@@ -203,5 +203,52 @@ router.get("/sender/:ownerId", validateObjectId("ownerId"), getPostsBySender);
  *               $ref: '#/components/schemas/Error'
  */
 router.put("/:_id", validateObjectId("_id"), validatePostUpdate, updatePost);
+
+/**
+ * @swagger
+ * /posts/{_id}:
+ *   delete:
+ *     summary: Delete post
+ *     description: Deletes a specific post by its ID
+ *     tags:
+ *       - Posts
+ *     parameters:
+ *       - in: path
+ *         name: _id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: Post deleted successfully
+ *       400:
+ *         description: Invalid post ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Post not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete("/:_id", validateObjectId("_id"), deletePost);
 
 export default router;
