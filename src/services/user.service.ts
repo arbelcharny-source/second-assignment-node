@@ -156,14 +156,77 @@ export class UserService {
     });
   }
 
-  async getUserById(userId: string): Promise<IUser> {
+  async getUserById(userId: string): Promise<UserResponse> {
     const user = await User.findById(userId);
 
     if (!user) {
       throw new AppError(`User with id ${userId} not found`, 404);
     }
 
-    return user;
+    return {
+      _id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async getAllUsers(): Promise<UserResponse[]> {
+    const users = await User.find({});
+
+    return users.map(user => ({
+      _id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+  }
+
+  async updateUser(userId: string, updates: { username?: string; email?: string; fullName?: string }): Promise<UserResponse> {
+    if (updates.username) {
+      const existingUser = await User.findOne({ username: updates.username, _id: { $ne: userId } });
+      if (existingUser) {
+        throw new AppError('Username already exists', 409);
+      }
+    }
+
+    if (updates.email) {
+      const existingUser = await User.findOne({ email: updates.email, _id: { $ne: userId } });
+      if (existingUser) {
+        throw new AppError('Email already exists', 409);
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      throw new AppError(`User with id ${userId} not found`, 404);
+    }
+
+    return {
+      _id: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      throw new AppError(`User with id ${userId} not found`, 404);
+    }
   }
 
   async checkUserExists(userId: string): Promise<boolean> {

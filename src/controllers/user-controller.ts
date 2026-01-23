@@ -69,3 +69,40 @@ export const logoutAll = asyncHandler(async (req: Request, res: Response): Promi
 
   sendSuccess(res, { message: 'Logged out from all devices successfully' });
 });
+
+export const getUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+
+  const user = await userService.getUserById(id);
+
+  sendSuccess(res, user);
+});
+
+export const getAllUsers = asyncHandler(async (_req: Request, res: Response): Promise<void> => {
+  const users = await userService.getAllUsers();
+
+  sendSuccess(res, users);
+});
+
+interface UpdateUserBody {
+  username?: string;
+  email?: string;
+  fullName?: string;
+}
+
+export const updateUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+  const updates = req.body as UpdateUserBody;
+
+  const user = await userService.updateUser(id, updates);
+
+  sendSuccess(res, user);
+});
+
+export const deleteUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
+
+  await userService.deleteUser(id);
+
+  sendSuccess(res, { message: 'User deleted successfully' });
+});

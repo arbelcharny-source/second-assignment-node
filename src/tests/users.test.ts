@@ -157,4 +157,141 @@ describe("Users API", () => {
     expect(response.body.data.accessToken).toBeDefined();
     expect(response.body.data.refreshToken).toBeDefined();
   });
+
+  test("Get all users", async () => {
+    await request(app).post("/users/register").send({
+      username: "user1",
+      email: "user1@example.com",
+      fullName: "User One",
+      password: "password123"
+    });
+    await request(app).post("/users/register").send({
+      username: "user2",
+      email: "user2@example.com",
+      fullName: "User Two",
+      password: "password123"
+    });
+
+    const response = await request(app).get("/users");
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.length).toBe(2);
+  });
+
+  test("Get user by ID", async () => {
+    const registerResponse = await request(app).post("/users/register").send({
+      username: "getuser",
+      email: "getuser@example.com",
+      fullName: "Get User",
+      password: "password123"
+    });
+    const userId = registerResponse.body.data.user._id;
+
+    const response = await request(app).get(`/users/${userId}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data._id).toBe(userId);
+    expect(response.body.data.username).toBe("getuser");
+  });
+
+  test("Get user by ID - Not Found", async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app).get(`/users/${nonExistentId}`);
+    expect(response.statusCode).toBe(404);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Get user by ID - Invalid format", async () => {
+    const response = await request(app).get("/users/invalid_id");
+    expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Update user", async () => {
+    const registerResponse = await request(app).post("/users/register").send({
+      username: "updateuser",
+      email: "updateuser@example.com",
+      fullName: "Update User",
+      password: "password123"
+    });
+    const userId = registerResponse.body.data.user._id;
+
+    const response = await request(app).put(`/users/${userId}`).send({
+      fullName: "Updated Name",
+      email: "updated@example.com"
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.fullName).toBe("Updated Name");
+    expect(response.body.data.email).toBe("updated@example.com");
+  });
+
+  test("Update user - Not Found", async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app).put(`/users/${nonExistentId}`).send({
+      fullName: "New Name"
+    });
+    expect(response.statusCode).toBe(404);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Update user - Invalid format", async () => {
+    const response = await request(app).put("/users/invalid_id").send({
+      fullName: "New Name"
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Update user - Duplicate email", async () => {
+    await request(app).post("/users/register").send({
+      username: "existinguser",
+      email: "existing@example.com",
+      fullName: "Existing User",
+      password: "password123"
+    });
+    const registerResponse = await request(app).post("/users/register").send({
+      username: "updateuser2",
+      email: "updateuser2@example.com",
+      fullName: "Update User 2",
+      password: "password123"
+    });
+    const userId = registerResponse.body.data.user._id;
+
+    const response = await request(app).put(`/users/${userId}`).send({
+      email: "existing@example.com"
+    });
+    expect(response.statusCode).toBe(409);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Delete user", async () => {
+    const registerResponse = await request(app).post("/users/register").send({
+      username: "deleteuser",
+      email: "deleteuser@example.com",
+      fullName: "Delete User",
+      password: "password123"
+    });
+    const userId = registerResponse.body.data.user._id;
+
+    const response = await request(app).delete(`/users/${userId}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    const checkResponse = await request(app).get(`/users/${userId}`);
+    expect(checkResponse.statusCode).toBe(404);
+  });
+
+  test("Delete user - Not Found", async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app).delete(`/users/${nonExistentId}`);
+    expect(response.statusCode).toBe(404);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Delete user - Invalid format", async () => {
+    const response = await request(app).delete("/users/invalid_id");
+    expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
 });

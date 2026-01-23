@@ -115,6 +115,27 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        UserUpdateRequest: {
+          type: "object",
+          properties: {
+            username: {
+              type: "string",
+              description: "New username (3-50 characters)",
+              example: "new_username",
+            },
+            email: {
+              type: "string",
+              format: "email",
+              description: "New email address",
+              example: "newemail@example.com",
+            },
+            fullName: {
+              type: "string",
+              description: "New full name (2-100 characters)",
+              example: "Jane Doe",
+            },
+          },
+        },
         AuthResponse: {
           type: "object",
           properties: {

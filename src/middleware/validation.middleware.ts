@@ -159,3 +159,48 @@ export const validateCommentUpdate = (req: Request, res: Response, next: NextFun
 
   next();
 };
+
+export const validateUserUpdate = (req: Request, res: Response, next: NextFunction): void => {
+  const { username, email, fullName } = req.body;
+
+  if (!username && !email && !fullName) {
+    sendValidationError(res, 'At least one field (username, email, or fullName) is required');
+    return;
+  }
+
+  if (username !== undefined) {
+    if (typeof username !== 'string') {
+      sendValidationError(res, 'Username must be a string');
+      return;
+    }
+    if (username.trim().length < 3 || username.trim().length > 50) {
+      sendValidationError(res, 'Username must be between 3 and 50 characters');
+      return;
+    }
+  }
+
+  if (email !== undefined) {
+    if (typeof email !== 'string') {
+      sendValidationError(res, 'Email must be a string');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      sendValidationError(res, 'Invalid email format');
+      return;
+    }
+  }
+
+  if (fullName !== undefined) {
+    if (typeof fullName !== 'string') {
+      sendValidationError(res, 'Full name must be a string');
+      return;
+    }
+    if (fullName.trim().length < 2 || fullName.trim().length > 100) {
+      sendValidationError(res, 'Full name must be between 2 and 100 characters');
+      return;
+    }
+  }
+
+  next();
+};
