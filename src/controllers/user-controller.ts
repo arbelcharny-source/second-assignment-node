@@ -1,25 +1,18 @@
 import { Request, Response } from 'express';
-import User from "../models/user.js";
+import { asyncHandler } from '../middleware/error.middleware.js';
+import { sendCreated } from '../utils/response.js';
+import userService from '../services/user.service.js';
 
 interface CreateUserBody {
-    username: string;
-    fullName: string;
+  username: string;
+  email: string;
+  fullName: string;
 }
 
-export const createUser = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const userBody = req.body as CreateUserBody;
+export const createUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { username, email, fullName } = req.body as CreateUserBody;
 
-        const existingUser = await User.findOne({ username: userBody.username });
-        if (existingUser) {
-            res.status(409).send("Username already exist!");
-            return;
-        }
+  const user = await userService.createUser(username, email, fullName);
 
-        const user = await User.create(userBody);
-        res.status(201).send(user);
-
-    } catch (error) {
-        res.status(400).send((error as Error).message);
-    }
-};
+  sendCreated(res, user);
+});
