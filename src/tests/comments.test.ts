@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -25,12 +28,13 @@ beforeEach(async () => {
   await Post.deleteMany({});
   await User.deleteMany({});
 
-  const userRes = await request(app).post("/auth/register").send({
+  const userRes = await request(app).post("/users/register").send({
     username: "commenter",
     email: "commenter@example.com",
-    fullName: "Commenter"
+    fullName: "Commenter",
+    password: "password123"
   });
-  userId = userRes.body.data._id;
+  userId = userRes.body.data.user._id;
 
   const postRes = await request(app).post("/posts").send({
     title: "Post", content: "...", ownerId: userId, imageAttachmentUrl: "url"

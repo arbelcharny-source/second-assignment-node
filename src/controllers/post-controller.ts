@@ -57,3 +57,11 @@ export const updatePost = asyncHandler(async (req: Request, res: Response): Prom
 
   sendSuccess(res, updatedPost);
 });
+
+export const deletePost = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const id = req.params._id as string;
+
+  await postService.deletePost(id);
+
+  sendSuccess(res, { message: 'Post deleted successfully' });
+});

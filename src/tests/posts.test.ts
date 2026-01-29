@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -22,12 +25,13 @@ beforeEach(async () => {
   await Post.deleteMany({});
   await User.deleteMany({});
 
-  const userRes = await request(app).post("/auth/register").send({
+  const userRes = await request(app).post("/users/register").send({
     username: "poster",
     email: "poster@example.com",
-    fullName: "Poster User"
+    fullName: "Poster User",
+    password: "password123"
   });
-  userId = userRes.body.data._id;
+  userId = userRes.body.data.user._id;
 });
 
 describe("Posts API", () => {
@@ -142,6 +146,33 @@ describe("Posts API", () => {
       imageAttachmentUrl: "http://img.com/1.png"
     });
     expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Delete post", async () => {
+    const postRes = await request(app).post("/posts").send({
+      title: "Delete Me", content: "To be deleted", ownerId: userId, imageAttachmentUrl: "url"
+    });
+    const postId = postRes.body.data._id;
+
+    const response = await request(app).delete(`/posts/${postId}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    const checkRes = await request(app).get(`/posts/${postId}`);
+    expect(checkRes.statusCode).toBe(404);
+  });
+
+  test("Delete post - Invalid format", async () => {
+    const response = await request(app).delete("/posts/invalid_id");
+    expect(response.statusCode).toBe(400);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Delete post - Not Found", async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app).delete(`/posts/${nonExistentId}`);
+    expect(response.statusCode).toBe(404);
     expect(response.body.success).toBe(false);
   });
 });

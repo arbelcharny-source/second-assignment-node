@@ -100,6 +100,14 @@ export class PostService {
     return updatedPost;
   }
 
+  async deletePost(postId: string): Promise<void> {
+    const post = await Post.findByIdAndDelete(postId);
+
+    if (!post) {
+      throw new AppError(`Post with id ${postId} not found`, 404);
+    }
+  }
+
   async checkPostExists(postId: string): Promise<boolean> {
     const post = await Post.findById(postId);
     return !!post;
