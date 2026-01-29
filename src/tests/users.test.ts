@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -295,3 +292,48 @@ describe("Users API", () => {
     expect(response.body.success).toBe(false);
   });
 });
+
+test("Fail to login with non-existent username", async () => {
+    const response = await request(app).post("/users/login").send({
+      username: "ghost_user",
+      password: "password123"
+    });
+    expect(response.statusCode).toBe(401);
+    expect(response.body.success).toBe(false);
+  });
+
+  test("Fail to refresh token - Missing token", async () => {
+    const response = await request(app).post("/users/refresh").send({});
+    expect(response.statusCode).toBe(400); 
+  });
+
+  test("Fail to refresh token - Invalid token", async () => {
+    const response = await request(app).post("/users/refresh").send({
+        refreshToken: "invalid_token_string_123"
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  test("Logout successfully", async () => {
+    const registerResponse = await request(app).post("/users/register").send({
+      username: "logoutuser",
+      email: "logout@example.com",
+      fullName: "Logout User",
+      password: "password123"
+    });
+    
+    const refreshToken = registerResponse.body.data.refreshToken;
+    const accessToken = registerResponse.body.data.accessToken;
+
+    const response = await request(app)
+      .post("/users/logout")
+      .set("Authorization", "Bearer " + accessToken)
+      .send({ refreshToken });
+    
+    expect(response.statusCode).toBe(200);
+
+    if (response.statusCode === 200) {
+        const refreshRes = await request(app).post("/users/refresh").send({ refreshToken });
+        expect(refreshRes.statusCode).not.toBe(200); 
+    }
+  });

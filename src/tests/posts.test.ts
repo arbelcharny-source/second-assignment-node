@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -176,3 +173,12 @@ describe("Posts API", () => {
     expect(response.body.success).toBe(false);
   });
 });
+
+test("Fail to create post with empty content", async () => {
+    const response = await request(app).post("/posts").send({
+      title: "Title",
+      content: "",
+      ownerId: userId
+    });
+    expect(response.statusCode).toBe(400); 
+  });

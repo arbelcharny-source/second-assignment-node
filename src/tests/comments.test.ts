@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import request from "supertest";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
